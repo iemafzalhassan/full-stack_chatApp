@@ -1,4 +1,6 @@
 [![Fork Button](https://img.shields.io/github/forks/iemafzalhassan/full-stack_chatApp?style=social)](https://github.com/iemafzalhassan/full-stack_chatApp/fork)
+[![Stars](https://img.shields.io/github/stars/iemafzalhassan/full-stack_chatApp)](https://github.com/iemafzalhassan/full-stack_chatApp)
+![GitHub last commit](https://img.shields.io/github/last-commit/iemafzalhassan/full-stack_chatApp?color=red)
 
 
 # Real-Time Chat Application
