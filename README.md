@@ -4,7 +4,7 @@
 # Real-Time Chat Application
 
 
-Welcome to the **Full Stack Realtime Chat App** project, where we're building a scalable and secure real-time chat experience using the latest technologies. Inviting everyone to contribute and be a part of this exciting journey!
+Welcome to the **Full Stack Three Tier** project, where we're building a scalable and secure real-time chat experience using the latest technologies. Inviting everyone to contribute and be a part of this exciting journey!
 
 ## Table of Contents
 
