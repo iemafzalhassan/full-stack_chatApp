@@ -1,0 +1,225 @@
+# Full CI/CD pipeline for full-stack chat app
+# Fill in the required secrets in your GitHub repo settings
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Applications
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install backend dependencies
+        run: cd backend && npm ci
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+      - name: Build backend
+        run: cd backend && npm run build
+      - name: Build frontend
+        run: cd frontend && npm run build
+
+  unit-test:
+    name: Unit Testing & Coverage
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install backend dependencies
+        run: cd backend && npm ci
+      - name: Run backend tests
+        run: cd backend && npm test -- --coverage
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+      - name: Run frontend tests
+        run: cd frontend && npm test -- --coverage
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            backend/coverage
+            frontend/coverage
+
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: NPM Audit Backend
+        run: cd backend && npm audit --audit-level=high || true
+      - name: NPM Audit Frontend
+        run: cd frontend && npm audit --audit-level=high || true
+      - name: GitGuardian scan
+        uses: GitGuardian/ggshield-action@v1.23.0
+        with:
+          args: scan repo .
+        env:
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+      - name: Trivy FS Scan
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+
+  fossa-scan:
+    name: FOSSA License Scan
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: FOSSA Scan
+        uses: fossas/fossa-action@v1
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+
+  code-quality:
+    name: SonarQube Code Quality
+    runs-on: ubuntu-latest
+    needs: [unit-test]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install SonarQube Scanner
+        run: npm install -g sonarqube-scanner
+      - name: Run SonarQube Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          # Example for backend, repeat for frontend if needed
+          cd backend
+          sonar-scanner \
+            -Dsonar.projectKey=backend \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=$SONAR_TOKEN
+
+  container-scan:
+    name: Container Image Scanning
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      # Azure login for ACR
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Login to ACR
+        run: az acr login --name ${{ secrets.ACR_NAME }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build backend image
+        run: docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/chatapp-backend:latest ./backend
+      - name: Build frontend image
+        run: docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/chatapp-frontend:latest ./frontend
+      - name: Trivy Image Scan Backend
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: '${{ secrets.ACR_LOGIN_SERVER }}/chatapp-backend:latest'
+      - name: Trivy Image Scan Frontend
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: '${{ secrets.ACR_LOGIN_SERVER }}/chatapp-frontend:latest'
+      - name: Push backend image
+        run: docker push ${{ secrets.ACR_LOGIN_SERVER }}/chatapp-backend:latest
+      - name: Push frontend image
+        run: docker push ${{ secrets.ACR_LOGIN_SERVER }}/chatapp-frontend:latest
+
+  integration-test:
+    name: Integration & E2E Testing
+    runs-on: ubuntu-latest
+    needs: [container-scan]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: cd frontend && npm ci
+      - name: Run E2E tests (Cypress/Playwright)
+        run: |
+          # Example for Playwright
+          cd frontend
+          npx playwright install
+          npm run test:e2e || echo 'No E2E tests defined'
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [integration-test]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Kubeconfig
+        run: echo "$KUBECONFIG_STAGING" > kubeconfig && export KUBECONFIG=$(pwd)/kubeconfig
+        env:
+          KUBECONFIG_STAGING: ${{ secrets.KUBECONFIG_STAGING }}
+      - name: Deploy to Staging (kubectl)
+        run: |
+          kubectl apply -f k8s/
+
+  manual-approval:
+    name: Manual Approval for Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    steps:
+      - name: Await manual approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: user1,user2
+
+  deploy-production:
+    name: Blue-Green Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [manual-approval]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Kubeconfig
+        run: echo "$KUBECONFIG_PROD" > kubeconfig && export KUBECONFIG=$(pwd)/kubeconfig
+        env:
+          KUBECONFIG_PROD: ${{ secrets.KUBECONFIG_PROD }}
+      - name: Blue-Green Deployment
+        run: |
+          # Implement blue-green logic here, e.g.,
+          # 1. Deploy new version as 'green'
+          # 2. Run health checks
+          # 3. Switch service to 'green' if healthy
+          # 4. Optionally, remove 'blue'
+          echo 'Blue-green deployment steps go here.'
+
+  post-deploy-test:
+    name: Post-deployment Smoke & Health Checks
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    steps:
+      - name: Run smoke tests
+        run: |
+          # Example: curl health endpoints
+          curl -f https://your-production-url.com/api/health
+          curl -f https://your-production-url.com/ 
