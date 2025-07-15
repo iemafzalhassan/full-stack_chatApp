@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongodb
-  namespace: chat-app
+  namespace: chatapp
 spec:
   replicas: 1
   selector:

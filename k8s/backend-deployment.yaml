@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
-  namespace: chat-app
+  namespace: chatapp
 spec:
   replicas: 1
   selector:
@@ -21,11 +21,11 @@ spec:
         - containerPort: 5001
         env:
         - name: MONGODB_URI
-          value: "mongodb://root:admin@mongodb:27017/chatApp?authSource=admin"
+          value: mongodb://root:admin@mongodb:27017/chatApp?authSource=admin
         - name: PORT
-          value: "5001"
+          value: '5001'
         - name: NODE_ENV
-          value: "production"
+          value: production
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
@@ -33,8 +33,8 @@ spec:
               key: jwt-secret
         resources:
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: 512Mi
+            cpu: 500m
           requests:
-            memory: "256Mi"
-            cpu: "250m"
+            memory: 256Mi
+            cpu: 250m
