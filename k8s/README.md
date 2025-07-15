@@ -150,7 +150,8 @@ MongoDB is used for storing chat messages and user data. To deploy MongoDB, appl
 
 ```bash
 # Create MongoDB PV
-kubectl apply -f k8s/mongo-pv.yaml
+This Kind cluster is configured to handle dynamic PersistentVolumeClaims (PVCs) for local storage.
+We utilize the local-path-provisioner (indicated by rancher.io/local-path as the provisioner for the standard StorageClass). This setup means that when you create a PVC like mongo-pvc specifying storageClassName: standard, a corresponding PersistentVolume (PV) will be automatically provisioned on the Kind node's filesystem, eliminating the need for manual PV creation.
 
 # Create MongoDB PVC
 kubectl apply -f k8s/mongo-pvc.yaml 
