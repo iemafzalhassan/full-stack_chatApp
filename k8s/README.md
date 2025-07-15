@@ -139,6 +139,9 @@ kubectl apply -f k8s/namespace.yaml
 
 # Verify namespace creation
 kubectl get namespaces
+
+#set your namespace as default
+kubens chatapp 
 ```
 
 ### 3. Create Storage and Configurations
@@ -146,24 +149,27 @@ kubectl get namespaces
 MongoDB is used for storing chat messages and user data. To deploy MongoDB, apply the following commands:
 
 ```bash
+# Create MongoDB PV
+kubectl apply -f k8s/mongo-pv.yaml
+
 # Create MongoDB PVC
-kubectl apply -f k8s/mongo-pvc.yaml -n chat-app
+kubectl apply -f k8s/mongo-pvc.yaml 
 
 # Create backend secrets
-kubectl apply -f k8s/backend-secrets.yaml -n chat-app
+kubectl apply -f k8s/backend-secrets.yaml 
 
 # Create frontend nginx config
-kubectl apply -f k8s/frontend-configmap.yaml -n chat-app
+kubectl apply -f k8s/frontend-configmap.yaml 
 ```
 
 ### 4. Deploy MongoDB
 ```bash
 # Deploy MongoDB
-kubectl apply -f k8s/mongodb-deployment.yaml -n chat-app
-kubectl apply -f k8s/mongodb-service.yaml -n chat-app
+kubectl apply -f k8s/mongodb-deployment.yaml 
+kubectl apply -f k8s/mongodb-service.yaml
 
 # Wait for MongoDB pod to be ready
-kubectl wait --for=condition=Ready pods -l app=mongodb -n chat-app --timeout=120s
+kubectl wait --for=condition=Ready pods -l app=mongodb --timeout=120s
 ```
 
 
@@ -173,11 +179,11 @@ The **backend** service processes messages and user authentication. To deploy th
 
 ```bash
 # Deploy Backend
-kubectl apply -f k8s/backend-deployment.yaml -n chat-app
-kubectl apply -f k8s/backend-service.yaml -n chat-app
+kubectl apply -f k8s/backend-deployment.yaml
+kubectl apply -f k8s/backend-service.yaml
 
 # Wait for Backend pod to be ready
-kubectl wait --for=condition=Ready pods -l app=backend -n chat-app --timeout=120s
+kubectl wait --for=condition=Ready pods -l app=backend --timeout=120s
 ```
 
 These files will deploy the backend service, which will handle all API requests from the frontend.
@@ -188,11 +194,11 @@ The **frontend** is the user interface where people interact with the chat app. 
 
 ```bash
 # Deploy Frontend
-kubectl apply -f k8s/frontend-deployment.yaml -n chat-app
-kubectl apply -f k8s/frontend-service.yaml -n chat-app
+kubectl apply -f k8s/frontend-deployment.yaml
+kubectl apply -f k8s/frontend-service.yaml
 
 # Wait for Frontend pod to be ready
-kubectl wait --for=condition=Ready pods -l app=frontend -n chat-app --timeout=120s
+kubectl wait --for=condition=Ready pods -l app=frontend  --timeout=120s
 ```
 
 This will launch the frontend UI and expose it to the web.
@@ -205,12 +211,12 @@ Once the app is deployed, it's crucial to verify that everything is running smoo
 
 ```bash
 # Check all resources
-kubectl get all -n chat-app
+kubectl get all 
 
 # Check pod logs if needed
-kubectl logs -f -l app=frontend -n chat-app
-kubectl logs -f -l app=backend -n chat-app
-kubectl logs -f -l app=mongodb -n chat-app
+kubectl logs -f -l app=frontend 
+kubectl logs -f -l app=backend 
+kubectl logs -f -l app=mongodb
 ```
 ## Accessing the Application
 
@@ -220,7 +226,7 @@ http://localhost:8080
 You can verify the service URLs using:
 ```bash
 # Get service details
-kubectl get svc -n chat-app
+kubectl get svc 
 ```
 
 ### 🔍 Describe a Pod
@@ -228,7 +234,7 @@ kubectl get svc -n chat-app
 If a pod isn’t working as expected, you can describe it to get more information:
 
 ```bash
-kubectl describe pod <pod-name> -n chat-app
+kubectl describe pod <pod-name> 
 ```
 
 This will give you detailed information about a specific pod, including any potential issues.
@@ -238,10 +244,10 @@ This will give you detailed information about a specific pod, including any pote
 When you're done, you can clean up using:
 ```bash
 # Delete all resources in namespace
-kubectl delete namespace chat-app
+kubectl delete namespace chatapp
 
 # Delete the kind cluster
-kind delete cluster --name chat-app-cluster
+kind delete cluster --name my-cluster
 ```
 
 ---
