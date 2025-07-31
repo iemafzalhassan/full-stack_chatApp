@@ -48,3 +48,7 @@ module "vpc" {
     Terraform   = "true"
   }
 }
+
+module "ecr" {
+  source = "infra/ecr"
+}
