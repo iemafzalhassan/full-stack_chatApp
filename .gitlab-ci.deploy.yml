@@ -40,6 +40,7 @@ push_frontend:
 deploy:
   stage: deploy
   script:
+    - aws eks update-kubeconfig --region us-east-2 --name chatapp-cluster
     - kubectl config use-context arn:aws:eks:us-east-2:339932683794:cluster/chatapp-cluster
     - kubectl apply -f k8s/namespace.yaml
     - kubectl apply -f k8s/mongodb-secret.yaml
