@@ -50,5 +50,5 @@ module "vpc" {
 }
 
 module "ecr" {
-  source = "./infra/ecr"
+  source = "../ecr"
 }
