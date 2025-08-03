@@ -12,7 +12,7 @@ validate_eks:
   stage: validate
   script:
     - cd infra/eks
-    - terraform init
+    - terraform init -reconfigure
     - terraform validate
   tags:
     - self-hosted
