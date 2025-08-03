@@ -14,7 +14,6 @@ validate_eks:
     - cd infra/eks
     - terraform init
     - terraform validate
-  needs: ["validate_backend"]
   tags:
     - self-hosted
 
@@ -24,7 +23,6 @@ validate_ecr:
     - cd infra/ecr
     - terraform init
     - terraform validate
-  needs: ["validate_backend"]
   tags:
     - self-hosted
 
