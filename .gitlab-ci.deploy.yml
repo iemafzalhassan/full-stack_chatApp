@@ -1,0 +1,54 @@
+stages:
+  - build
+  - push
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  IMAGE_TAG: "v$CI_PIPELINE_ID"
+
+build_backend:
+  stage: build
+  script:
+    - docker build -t $ECR_BACKEND_REPO:$IMAGE_TAG ./backend
+
+build_frontend:
+  stage: build
+  script:
+    - docker build -t $ECR_FRONTEND_REPO:$IMAGE_TAG ./frontend
+
+push_backend:
+  stage: push
+  script:
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_BACKEND_REPO
+    - docker push $ECR_BACKEND_REPO:$IMAGE_TAG
+
+push_frontend:
+  stage: push
+  script:
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_FRONTEND_REPO
+    - docker push $ECR_FRONTEND_REPO:$IMAGE_TAG
+
+deploy:
+  stage: deploy
+  script:
+    - export CLUSTER_ARN=$(aws eks describe-cluster --name $EKS_CLUSTER_NAME --region $AWS_REGION --query "cluster.arn" --output text)
+    - kubectl config use-context $CLUSTER_ARN
+    - kubectl apply -f k8s/namespace.yaml
+    - kubectl apply -f k8s/mongodb-secret.yaml
+    - kubectl apply -f k8s/mongodb-configmap.yaml
+    - kubectl apply -f k8s/mongo-pvc.yaml
+    - kubectl apply -f k8s/mongodb-deployment.yaml
+    - kubectl apply -f k8s/mongodb-service.yaml
+    - kubectl apply -f k8s/backend-secrets.yaml
+    - kubectl apply -f k8s/backend-service.yaml
+    - kubectl apply -f k8s/backend-deployment.yaml
+    - kubectl apply -f k8s/backend-hpa.yaml
+    - kubectl apply -f k8s/frontend-configmap.yaml
+    - kubectl apply -f k8s/frontend-service.yaml
+    - kubectl apply -f k8s/frontend-deployment.yaml
+    - kubectl apply -f k8s/frontend-hpa.yaml
+    - kubectl apply -f k8s/frontend-ingress.yaml
+    - kubectl apply -f k8s/metrics-server.yaml
+  only:
+    - DevOps

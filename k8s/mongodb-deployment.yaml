@@ -15,17 +15,27 @@ spec:
     spec:
       containers:
       - name: mongodb
-        image: iemafzal/mongodb:v1
+        image: mongo:6.0
         ports:
         - containerPort: 27017
+        envFrom:
         env:
         - name: MONGO_INITDB_ROOT_USERNAME
-          value: root
+          valueFrom:
+            secretKeyRef:
+             name: mongodb-secret
+             key: MONGO_INITDB_ROOT_USERNAME
         - name: MONGO_INITDB_ROOT_PASSWORD
-          value: admin
-        volumeMounts:
-        - name: mongo-data
-          mountPath: /data/db
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: MONGO_INITDB_ROOT_PASSWORD
+        - name: MONGO_DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: mongodb-config
+              key: MONGO_INITDB_DATABASE
+
       volumes:
       - name: mongo-data
         persistentVolumeClaim:
