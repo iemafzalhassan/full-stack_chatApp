@@ -11,23 +11,31 @@ build_backend:
   stage: build
   script:
     - docker build -t $ECR_BACKEND_REPO:$IMAGE_TAG ./backend
+  tags:
+    - self-hosted
 
 build_frontend:
   stage: build
   script:
     - docker build -t $ECR_FRONTEND_REPO:$IMAGE_TAG ./frontend
+  tags:
+    - self-hosted
 
 push_backend:
   stage: push
   script:
     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_BACKEND_REPO
     - docker push $ECR_BACKEND_REPO:$IMAGE_TAG
+  tags:
+    - self-hosted
 
 push_frontend:
   stage: push
   script:
     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_FRONTEND_REPO
     - docker push $ECR_FRONTEND_REPO:$IMAGE_TAG
+  tags:
+    - self-hosted
 
 deploy:
   stage: deploy
@@ -52,3 +60,5 @@ deploy:
     - kubectl apply -f k8s/metrics-server.yaml
   only:
     - DevOps
+  tags:
+    - self-hosted
