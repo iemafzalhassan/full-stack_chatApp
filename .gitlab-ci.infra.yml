@@ -14,7 +14,6 @@ plan_eks:
     - cd infra/eks
     - terraform init -reconfigure
     - terraform plan -out=tfplan
-  needs: ["validate_eks"]
   tags:
     - self-hosted
   artifacts:
