@@ -50,13 +50,13 @@ deploy:
     - kubectl apply -f k8s/mongodb-service.yaml
     - kubectl apply -f k8s/backend-secrets.yaml
     - kubectl apply -f k8s/backend-service.yaml
-    - sed "s|IMAGE_PLACEHOLDER|$ECR_BACKEND_REPO:$IMAGE_TAG|g" k8s/backend-deployment.yaml > k8s/backend-deployment.yaml
-    - kubectl apply -f k8s/backend-deployment.yaml
+    - sed "s|IMAGE_PLACEHOLDER|$ECR_BACKEND_REPO:$IMAGE_TAG|g" k8s/backend-deployment.yaml > k8s/_backend-deployment.yaml
+    - kubectl apply -f k8s/_backend-deployment.yaml
     - kubectl apply -f k8s/backend-hpa.yaml
     - kubectl apply -f k8s/frontend-configmap.yaml
     - kubectl apply -f k8s/frontend-service.yaml
-    - sed "s|IMAGE_PLACEHOLDER|$ECR_FRONTEND_REPO:$IMAGE_TAG|g" k8s/frontend-deployment.yaml > k8s/frontend-deployment.yaml
-    - kubectl apply -f k8s/frontend-deployment.yaml
+    - sed "s|IMAGE_PLACEHOLDER|$ECR_FRONTEND_REPO:$IMAGE_TAG|g" k8s/frontend-deployment.yaml > k8s/_frontend-deployment.yaml
+    - kubectl apply -f k8s/_frontend-deployment.yaml
     - kubectl apply -f k8s/frontend-hpa.yaml
     - kubectl apply -f k8s/frontend-ingress.yaml
     - kubectl apply -f k8s/metrics-server.yaml
