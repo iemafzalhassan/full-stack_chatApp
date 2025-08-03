@@ -1,5 +1,4 @@
 stages:
-  - backend_S3
   - validate
   - plan
   - apply
@@ -8,17 +7,6 @@ variables:
   TF_IN_AUTOMATION: "true"
   TF_INPUT: "false"
 
-
-validate_backend:
-  stage: backend_S3
-  script:
-    - cd infra/backend
-    - terraform init 
-    - terraform validate
-    - terraform plan -out=tfplan
-    - terraform apply --auto-approve tfplan
-  tags:
-    - self-hosted
 
 validate_eks:
   stage: validate
