@@ -17,14 +17,6 @@ validate_eks:
   tags:
     - self-hosted
 
-validate_ecr:
-  stage: validate
-  script:
-    - cd infra/ecr
-    - terraform init
-    - terraform validate
-  tags:
-    - self-hosted
 
 plan_eks:
   stage: plan
@@ -39,18 +31,6 @@ plan_eks:
       - infra/eks/tfplan
     expire_in: 1 hour
 
-plan_ecr:
-  stage: plan
-  script:
-    - cd infra/ecr
-    - terraform plan -out=tfplan
-  needs: ["validate_ecr"]
-  tags:
-    - self-hosted
-  artifacts:
-    paths:
-      - infra/ecr/tfplan
-    expire_in: 1 hour
 
 apply_eks:
   stage: apply
@@ -59,15 +39,5 @@ apply_eks:
     - terraform apply -auto-approve tfplan
   when: manual
   needs: ["plan_eks"]
-  tags:
-    - self-hosted
-
-apply_ecr:
-  stage: apply
-  script:
-    - cd infra/ecr
-    - terraform apply -auto-approve tfplan
-  when: manual
-  needs: ["plan_ecr"]
   tags:
     - self-hosted
