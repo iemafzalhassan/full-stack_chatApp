@@ -40,8 +40,7 @@ push_frontend:
 deploy:
   stage: deploy
   script:
-    - export CLUSTER_ARN=$(aws eks describe-cluster --name $EKS_CLUSTER_NAME --region $AWS_REGION --query "cluster.arn" --output text)
-    - kubectl config use-context $CLUSTER_ARN
+    - kubectl config use-context arn:aws:eks:us-east-2:339932683794:cluster/chatapp-cluster
     - kubectl apply -f k8s/namespace.yaml
     - kubectl apply -f k8s/mongodb-secret.yaml
     - kubectl apply -f k8s/mongodb-configmap.yaml
