@@ -98,7 +98,13 @@ With the prerequisites set up, let’s grab the code for the chat application. R
 
 ```bash
 git clone https://github.com/iemafzalhassan/full-stack_chatApp.git
+```
+```bash
 cd full-stack_chatApp/k8s
+```
+
+```bash
+git checkout DevOps
 ```
 
 This will:
@@ -111,66 +117,82 @@ This will:
 
 Now that we have everything in place, let’s start deploying the chat application to Kubernetes. Below are the detailed steps to deploy each component of the application using **Kind**.
 
-### 📦 Create a Kind Cluster
-
-To create a **Kind** cluster, run:
+### 1. Create Kind Cluster:
 
 ```bash
-kind create cluster --name chat-app
+# Create cluster using config
+
+kind create cluster --config k8s/kind-config.yaml
+
+# Verify cluster is running
+kubectl cluster-info
 ```
 
-### 1. 🗂️ Create a Kubernetes Namespace
+### 2. Create Namespace and Base Resources
 
 A **namespace** is a way to organize your resources. It keeps the app's resources isolated and easy to manage. To create the namespace for our chat app, run:
 
+
 ```bash
-kubectl apply -f namespace.yaml
+# Create namespace
+kubectl apply -f k8s/namespace.yaml
+
+# Verify namespace creation
+kubectl get namespaces
 ```
 
-This command will create the `chat-app` namespace where all the app components will reside.
-
-### 2. 🗄️ Deploy MongoDB (Database)
+### 3. Create Storage and Configurations
 
 MongoDB is used for storing chat messages and user data. To deploy MongoDB, apply the following commands:
 
 ```bash
-kubectl apply -f mongodb-deployment.yaml -n chat-app
-kubectl apply -f mongodb-service.yaml -n chat-app
-kubectl apply -f mongo-pvc.yaml -n chat-app
+# Create MongoDB PVC
+kubectl apply -f k8s/mongo-pvc.yaml -n chat-app
+
+# Create backend secrets
+kubectl apply -f k8s/backend-secrets.yaml -n chat-app
+
+# Create frontend nginx config
+kubectl apply -f k8s/frontend-configmap.yaml -n chat-app
 ```
 
-- **mongo-pvc.yaml**: Defines persistent storage for MongoDB.
-- **mongodb-deployment.yaml**: Deploys MongoDB inside a container.
-- **mongodb-service.yaml**: Exposes MongoDB so the backend can access it.
-
-### 3. 🔐 Deploy JWT Secret (Authentication)
-
-JWT (JSON Web Tokens) are used to authenticate users. To deploy the JWT secret, run:
-
+### 4. Deploy MongoDB
 ```bash
-kubectl apply -f jwt-secret.yaml -n chat-app
+# Deploy MongoDB
+kubectl apply -f k8s/mongodb-deployment.yaml -n chat-app
+kubectl apply -f k8s/mongodb-service.yaml -n chat-app
+
+# Wait for MongoDB pod to be ready
+kubectl wait --for=condition=Ready pods -l app=mongodb -n chat-app --timeout=120s
 ```
 
-This will securely store the JWT secret that will be used for user authentication.
 
-### 4. 🖥️ Deploy Backend Service
+### 5. 🖥️ Deploy Backend Service
 
 The **backend** service processes messages and user authentication. To deploy the backend, run the following commands:
 
 ```bash
-kubectl apply -f backend-deployment.yaml -n chat-app
-kubectl apply -f backend-service.yaml -n chat-app
+# Deploy Backend
+kubectl apply -f k8s/backend-deployment.yaml -n chat-app
+kubectl apply -f k8s/backend-service.yaml -n chat-app
+
+# Wait for Backend pod to be ready
+kubectl wait --for=condition=Ready pods -l app=backend -n chat-app --timeout=120s
 ```
 
 These files will deploy the backend service, which will handle all API requests from the frontend.
 
-### 5. 🌐 Deploy Frontend Service
+### 6. 🌐 Deploy Frontend Service
 
 The **frontend** is the user interface where people interact with the chat app. To deploy the frontend, use these commands:
 
 ```bash
-kubectl apply -f frontend-deployment.yaml -n chat-app
-kubectl apply -f frontend-service.yaml -n chat-app
+# Deploy Frontend
+kubectl apply -f k8s/frontend-deployment.yaml -n chat-app
+kubectl apply -f k8s/frontend-service.yaml -n chat-app
+
+# Wait for Frontend pod to be ready
+kubectl wait --for=condition=Ready pods -l app=frontend -n chat-app --timeout=120s
 ```
 
 This will launch the frontend UI and expose it to the web.
@@ -181,17 +203,27 @@ This will launch the frontend UI and expose it to the web.
 
 Once the app is deployed, it's crucial to verify that everything is running smoothly.
 
-### 1. 👀 Monitor Pods
-
-Check the status of the deployed pods (containers):
-
 ```bash
-kubectl get pods -n chat-app
+# Check all resources
+kubectl get all -n chat-app
+
+# Check pod logs if needed
+kubectl logs -f -l app=frontend -n chat-app
+kubectl logs -f -l app=backend -n chat-app
+kubectl logs -f -l app=mongodb -n chat-app
+```
+## Accessing the Application
+
+The application is exposed through NodePort services:
+http://localhost:8080
+
+You can verify the service URLs using:
+```bash
+# Get service details
+kubectl get svc -n chat-app
 ```
 
-This will show you the status of all pods in the `chat-app` namespace.
-
-### 2. 🔍 Describe a Pod
+### 🔍 Describe a Pod
 
 If a pod isn’t working as expected, you can describe it to get more information:
 
@@ -201,23 +233,16 @@ kubectl describe pod <pod-name> -n chat-app
 
 This will give you detailed information about a specific pod, including any potential issues.
 
-### 3. 📜 Check Logs
+## Cleanup
 
-To check the logs of a specific pod (which is useful for debugging), use:
-
+When you're done, you can clean up using:
 ```bash
-kubectl logs <pod-name> -n chat-app
+# Delete all resources in namespace
+kubectl delete namespace chat-app
+
+# Delete the kind cluster
+kind delete cluster --name chat-app-cluster
 ```
-
-### 4. 🌍 Port Forwarding
-
-To access the frontend from your local browser, run:
-
-```bash
-kubectl port-forward service/frontend 8080:80 -n chat-app
-```
-
-You can now access the app by visiting [http://localhost:8080](http://localhost:8080) in your browser.
 
 ---
 
@@ -236,21 +261,6 @@ This command:
 
 Once the services are running, you can access the app at [http://localhost:8080](http://localhost:8080).
 
----
-
-## 🧹 Clean Up
-
-Once you're done and want to remove the Kubernetes resources, you can delete the **Kind** cluster with:
-
-```bash
-kind delete cluster --name chat-app
-```
-
-This will clean up the resources, freeing up space and
-
- system resources.
-
----
 
 ## 🎉 Conclusion
 

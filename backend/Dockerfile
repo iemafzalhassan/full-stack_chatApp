@@ -1,41 +1,31 @@
-# Stage 1: Build
-FROM node:18-alpine AS builder
+# ===== Stage 1: Install dependencies =====
+FROM node:20-alpine AS builder
 
-# Set working directory
 WORKDIR /app
+RUN npm cache clean --force
+# Only copy package files to install dependencies
+COPY package*.json ./
 
-# Install dependencies
-COPY package.json package-lock.json ./
-RUN npm ci --only=production
-
-# Copy source code
+# Install only production dependencies
+RUN npm ci --omit=dev
 COPY . .
 
-# Stage 2: Production
-FROM node:18-alpine
+# ===== Stage 2: Build the app (optional if no build step) =====
+
+
+# Stage 2: Run with distroless
+
+
+FROM gcr.io/distroless/nodejs20
 
 # Set working directory
 WORKDIR /app
 
-# Create a non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-# Copy dependencies from builder
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app ./
-
-# Set environment variables
+# Optional: Set environment variable
 ENV NODE_ENV=production
 
-# Expose port
-EXPOSE 5001
+# Copy app from builder
+COPY --from=builder /app .
 
-# Switch to non-root user
-USER appuser
-
-# Start the server
-CMD ["npm", "start"]
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5001/health || exit 1
+# IMPORTANT: Use 'node yourEntry.js', not 'npm start'
+CMD [ "src/index.js"]

@@ -15,18 +15,26 @@ spec:
     spec:
       containers:
       - name: backend
-        image: iemafzal/f-s_backend:v1  
+        image: iemafzal/backend:v1
+        imagePullPolicy: Always
         ports:
         - containerPort: 5001
         env:
-        - name: NODE_ENV
-          value: production
         - name: MONGODB_URI
-          value: "mongodb://mongoadmin:secret@mongodb:27017/dbname?authSource=admin"
+          value: "mongodb://root:admin@mongodb:27017/chatApp?authSource=admin"
+        - name: PORT
+          value: "5001"
+        - name: NODE_ENV
+          value: "production"
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: jwt-secret
-              key: jwt
-        - name: PORT
-          value: "5001"
+              name: backend-secrets
+              key: jwt-secret
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"

@@ -1,0 +1,11 @@
+2025-08-03T06:23:48.337+0530	[34mINFO[0m	Detected OS: alpine
+2025-08-03T06:23:48.337+0530	[33mWARN[0m	This OS version is not on the EOL list: alpine 3.22
+2025-08-03T06:23:48.337+0530	[34mINFO[0m	Detecting Alpine vulnerabilities...
+2025-08-03T06:23:48.391+0530	[34mINFO[0m	Number of PL dependency files: 0
+2025-08-03T06:23:48.391+0530	[33mWARN[0m	This OS version is no longer supported by the distribution: alpine 3.22.1
+2025-08-03T06:23:48.391+0530	[33mWARN[0m	The vulnerability detection may be insufficient because security updates are not provided
+
+full-stack_chatapp-frontend (alpine 3.22.1)
+===========================================
+Total: 0 (HIGH: 0, CRITICAL: 0)
+

@@ -1,0 +1,32 @@
+2025-08-03T06:23:23.342+0530	[34mINFO[0m	Detected OS: debian
+2025-08-03T06:23:23.342+0530	[34mINFO[0m	Detecting Debian vulnerabilities...
+2025-08-03T06:23:23.345+0530	[34mINFO[0m	Number of PL dependency files: 0
+
+full-stack_chatapp-backend (debian 12.11)
+=========================================
+Total: 5 (HIGH: 4, CRITICAL: 1)
+
++---------+------------------+----------+-------------------+---------------+-----------------------------------------+
+| LIBRARY | VULNERABILITY ID | SEVERITY | INSTALLED VERSION | FIXED VERSION |                  TITLE                  |
++---------+------------------+----------+-------------------+---------------+-----------------------------------------+
+| libc6   | CVE-2019-1010022 | CRITICAL | 2.36-9+deb12u10   |               | glibc: stack guard protection bypass    |
+|         |                  |          |                   |               | -->avd.aquasec.com/nvd/cve-2019-1010022 |
++         +------------------+----------+                   +---------------+-----------------------------------------+
+|         | CVE-2018-20796   | HIGH     |                   |               | glibc: uncontrolled recursion in        |
+|         |                  |          |                   |               | function check_dst_limits_calc_pos_1    |
+|         |                  |          |                   |               | in posix/regexec.c                      |
+|         |                  |          |                   |               | -->avd.aquasec.com/nvd/cve-2018-20796   |
++         +------------------+          +                   +---------------+-----------------------------------------+
+|         | CVE-2019-1010023 |          |                   |               | glibc: running ldd on malicious ELF     |
+|         |                  |          |                   |               | leads to code execution because of...   |
+|         |                  |          |                   |               | -->avd.aquasec.com/nvd/cve-2019-1010023 |
++         +------------------+          +                   +---------------+-----------------------------------------+
+|         | CVE-2019-9192    |          |                   |               | glibc: uncontrolled recursion in        |
+|         |                  |          |                   |               | function check_dst_limits_calc_pos_1    |
+|         |                  |          |                   |               | in posix/regexec.c                      |
+|         |                  |          |                   |               | -->avd.aquasec.com/nvd/cve-2019-9192    |
++---------+------------------+          +-------------------+---------------+-----------------------------------------+
+| libssl3 | CVE-2023-0286    |          | 3.0.17-1~deb12u1  |               | X.400 address type confusion            |
+|         |                  |          |                   |               | in X.509 GeneralName                    |
+|         |                  |          |                   |               | -->avd.aquasec.com/nvd/cve-2023-0286    |
++---------+------------------+----------+-------------------+---------------+-----------------------------------------+

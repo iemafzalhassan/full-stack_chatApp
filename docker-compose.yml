@@ -1,74 +1,45 @@
-version: '3'
+version: '3.8'
 
 services:
   mongo:
-    image: mongo:latest
-    container_name: chatapp_mongo
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: admin
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
     volumes:
-      - mongo-data:/data/db
+      - mongo_data:/data/db
     networks:
-      - chatapp-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
+      - fullstack
 
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    container_name: chatapp_backend
-    environment:
-      - MONGODB_URI=mongodb://root:admin@mongo:27017/chatApp?authSource=admin
-      - JWT_SECRET=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE3MzI0NjA1NTEsImV4cCI6MTc2Mzk5NjU1MSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJSb2xlIjpbIk1hbmFnZXIiLCJQcm9qZWN0IEFkbWluaXN0cmF0b3IiXX0.YTeR6zLCKuOPjz5CYfwxW1gXp_wP1gAnN3qSMJIFQFg
-      - PORT=5001
-      - NODE_ENV=production
+    container_name: backend
     ports:
       - "5001:5001"
+    env_file:
+      - ./backend/.env
     depends_on:
-      mongo:
-        condition: service_healthy
+      - mongo
     networks:
-      - chatapp-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      - fullstack
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-    container_name: chatapp_frontend
-    environment:
-      - NODE_ENV=production
+    container_name: frontend
     ports:
-      - "80:80"
+      - "8081:80"
+  
     depends_on:
       - backend
     networks:
-      - chatapp-network
-
-networks:
-  chatapp-network:
-    driver: bridge
+      - fullstack
 
 volumes:
-  mongo-data:
+  mongo_data:
 
-
-
-
-
-
-
-
-
+networks:
+  fullstack:
+    driver: bridge
 
