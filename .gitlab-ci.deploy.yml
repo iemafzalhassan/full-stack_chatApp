@@ -45,6 +45,7 @@ deploy:
     - kubectl apply -f k8s/namespace.yaml
     - kubectl apply -f k8s/mongodb-secret.yaml
     - kubectl apply -f k8s/mongodb-configmap.yaml
+    - kubectl apply -f k8s/mongo-pv.yaml
     - kubectl apply -f k8s/mongo-pvc.yaml
     - kubectl apply -f k8s/mongodb-deployment.yaml
     - kubectl apply -f k8s/mongodb-service.yaml
