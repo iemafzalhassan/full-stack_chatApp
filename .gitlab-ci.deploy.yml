@@ -24,7 +24,7 @@ build_frontend:
 push_backend:
   stage: push
   script:
-    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_BACKEND_REPO
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_BACKEND_REPO
     - docker push $ECR_BACKEND_REPO:$IMAGE_TAG
   tags:
     - self-hosted
@@ -32,7 +32,7 @@ push_backend:
 push_frontend:
   stage: push
   script:
-    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_FRONTEND_REPO
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_FRONTEND_REPO
     - docker push $ECR_FRONTEND_REPO:$IMAGE_TAG
   tags:
     - self-hosted
