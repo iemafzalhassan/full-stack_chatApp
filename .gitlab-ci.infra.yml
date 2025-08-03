@@ -1,0 +1,83 @@
+stages:
+  - validate
+  - plan
+  - apply
+
+variables:
+  TF_IN_AUTOMATION: "true"
+  TF_CLI_ARGS: "-input=false"
+
+validate_backend:
+  stage: validate
+  script:
+    - cd infra/backend
+    - terraform init 
+    - terraform validate
+  tags:
+    - self-hosted
+
+validate_eks:
+  stage: validate
+  script:
+    - cd infra/eks
+    - terraform init
+    - terraform validate
+  needs: ["validate_backend"]
+  tags:
+    - self-hosted
+
+validate_ecr:
+  stage: validate
+  script:
+    - cd infra/ecr
+    - terraform init
+    - terraform validate
+  needs: ["validate_backend"]
+  tags:
+    - self-hosted
+
+plan_eks:
+  stage: plan
+  script:
+    - cd infra/eks
+    - terraform plan -out=tfplan
+  needs: ["validate_eks"]
+  tags:
+    - self-hosted
+  artifacts:
+    paths:
+      - infra/eks/tfplan
+    expire_in: 1 hour
+
+plan_ecr:
+  stage: plan
+  script:
+    - cd infra/ecr
+    - terraform plan -out=tfplan
+  needs: ["validate_ecr"]
+  tags:
+    - self-hosted
+  artifacts:
+    paths:
+      - infra/ecr/tfplan
+    expire_in: 1 hour
+
+apply_eks:
+  stage: apply
+  script:
+    - cd infra/eks
+    - terraform apply -auto-approve tfplan
+  when: manual
+  needs: ["plan_eks"]
+  tags:
+    - self-hosted
+
+apply_ecr:
+  stage: apply
+  script:
+    - cd infra/ecr
+    - terraform apply -auto-approve tfplan
+  when: manual
+  needs: ["plan_ecr"]
+  tags:
+    - self-hosted
