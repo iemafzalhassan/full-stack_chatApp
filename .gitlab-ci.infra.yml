@@ -5,7 +5,8 @@ stages:
 
 variables:
   TF_IN_AUTOMATION: "true"
-  TF_CLI_ARGS: "-input=false"
+  TF_INPUT: "false"
+
 
 validate_backend:
   stage: validate
