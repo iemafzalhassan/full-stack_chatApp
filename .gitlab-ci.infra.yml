@@ -1,5 +1,4 @@
 stages:
-  - validate
   - plan
   - apply
 
@@ -8,20 +7,12 @@ variables:
   TF_INPUT: "false"
 
 
-validate_eks:
-  stage: validate
-  script:
-    - cd infra/eks
-    - terraform init -reconfigure
-    - terraform validate
-  tags:
-    - self-hosted
-
 
 plan_eks:
   stage: plan
   script:
     - cd infra/eks
+    - terraform init -reconfigure
     - terraform plan -out=tfplan
   needs: ["validate_eks"]
   tags:
@@ -36,6 +27,7 @@ apply_eks:
   stage: apply
   script:
     - cd infra/eks
+    - terraform init -reconfigure
     - terraform apply -auto-approve tfplan
   when: manual
   needs: ["plan_eks"]
