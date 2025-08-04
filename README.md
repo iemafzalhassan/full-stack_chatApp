@@ -1,237 +1,103 @@
-[![Fork Button](https://img.shields.io/github/forks/iemafzalhassan/full-stack_chatApp?style=social)](https://github.com/iemafzalhassan/full-stack_chatApp/fork)
+# Full Stack Chat Application on AWS EKS using Terraform, GitLab CI/CD, and ALB
 
-
-# Real-Time Chat Application
-
-
-Welcome to the **Full Stack Realtime Chat App** project, where we're building a scalable and secure real-time chat experience using the latest technologies. Whether you're a seasoned developer or a beginner, we invite you to contribute and be a part of this exciting journey!
-
-## Table of Contents
-
-
-* [Introduction](#introduction)
-* [Features](#features)
-* [Tech Stack](#tech-stack)
-* [Getting Started](#getting-started)
-* [Building the Backend](#building-the-backend)
-* [Running the Application](#running-the-application)
-* [Contributing](#contributing)
-* [Future Plans](#future-plans)
-* [License](#license)
-
-## 📝 Introduction
-
-This project aims to provide a real-time chat experience that's both scalable and secure. With a focus on modern technologies, we're building an application that's easy to use and maintain.
-
-## ✨ Features
-
-
-* **Real-time Messaging**: Send and receive messages instantly using Socket.io 
-* **User Authentication & Authorization**: Securely manage user access with JWT 
-* **Scalable & Secure Architecture**: Built to handle large volumes of traffic and data 
-* **Modern UI Design**: A user-friendly interface crafted with React and TailwindCSS 
-* **Profile Management**: Users can upload and update their profile pictures 
-* **Online Status**: View real-time online/offline status of users 
-
-
-## 🛠️ Tech Stack
-
-
-* **Backend:** Node.js, Express, MongoDB, Socket.io
-* **Frontend:** React, TailwindCSS
-* **Containerization:** Docker
-* **Orchestration:** Kubernetes (planned)
-* **Web Server:** Nginx
-* **State Management:** Zustand
-* **Authentication:** JWT
-* **Styling Components:** DaisyUI
-
-
-### 🔧 Prerequisites
-
-
-* **[Node.js](https://nodejs.org/)** (v14 or higher)
-* **[Docker](https://www.docker.com/get-started)** (for containerizing the app)
-* **[Git](https://git-scm.com/downloads)** (to clone the repository)
-
-
-### 📝 Setup .env File
-
-
-1. Navigate to the `backend` directory:
-```bash
-cd backend
-```
-2. Create a `.env` file and add the following content (modify the values as needed):
-```env
-MONGODB_URI=mongodb://mongo:27017/chatapp
-JWT_SECRET=your_jwt_secret_key
-PORT=5001
-```
-    > **Note:** Replace `your_jwt_secret_key` with a strong secret key of your choice.
-
-### Clone the Repository
-
-```bash
-git clone https://github.com/iemafzalhassan/full-stack_chatApp.git
-```
-
-🏗️ Build and Run the Application
-
-Follow these steps to build and run the application:
-
-1. Build & Run the Containers:
-
-```bash
-cd full-stack_chatApp
-```
-```bash
-docker-compose up -d --build
-```
-
-2. Access the application in your browser:
-
-```
-http://localhost
-```
----
-
-## 🛠️ Getting Started
-
-Follow these simple steps to get the project up and running on your local Host using docker.
-
-```bash
-git clone https://github.com/iemafzalhassan/full-stack_chatApp.git
-```
-
-```bash
-cd full-stack_chatApp
-```
-## Create a Docker network:
-
-```bash
-docker network create full-stack
-```
-
-## 🛠️ Building the Frontend
-
-```bash
-cd frontend
-```
-
-```bash
-docker build -t full-stack_frontend .
-```
-
-### Run the Frontend container:
-
-```bash
-docker run -d --network=full-stack  -p 5173:5173 --name frontend full-stack_frontend:latest
-```
-#### The frontend will now be accessible on port 5173.
-
-
-## Run the MongoDB Container:
-
-```bash
-docker run -d -p 27017:27017 --name mongo mongo:latest
-```
----
-
-## 🛠️ Building the Backend
-
-```bash
-cd backend
-```
-
-### Build the Backend image:
-
-```bash
-docker build -t full-stack_backend .
-```
-
-### Run the Backend container:
-
-```bash
-docker run -d --network=full-stack --add-host=host.docker.internal:host-gateway -p 5001:5001 --env-file .env full-stack_backend
-```
-#### This will build and run the backend container, exposing the backendAPI on port 5001.
-
-`Backend API: http://localhost:5001`
-
-### To Verify the conncetion between backend and databse:
-```bash
-docker-compose logs -f
-```
-
-### Once the backend and frontend containers are running, you can access the application in your browser:
-
-`Frontend: http://localhost`
-
-
-You can now interact with the real-time chat app and start messaging!
+This project automates the deployment of a full-stack chat application on **Amazon EKS** using a complete DevOps pipeline. It includes infrastructure provisioning using **Terraform**, container orchestration with **Kubernetes**, container image storage via **ECR**, and access to the app via an **Application Load Balancer (ALB)**.
 
 ---
 
+## 📌 Tech Stack
 
-
-### 🤝 Contributing
-
-
-We welcome contributions from DevOps & Developer of all skill levels! Here's how you can contribute:
-
-**Report bugs:** If you encounter any bugs or issues, please open an issue with detailed information.
-**Suggest features:** Have an idea for a new feature? Open an issue to discuss it with the community.
-**Submit pull requests:** If you have a fix or a feature you'd like to contribute, submit a pull request. Ensure your changes pass any linting or tests, if applicable.
-
-### 🌐 Join the Community
-
-We invite you to join our community of developers and contributors. Let's work together to build an amazing real-time chat application!
-
-* **Star this repository** to show your support
-* **Fork this repository** to contribute to the project
-* **Open an issue** to report bugs or suggest features
-* **Submit a pull request** to contribute code changes
-
-## 🔮 Future Plans
-
-
-This project is evolving, and here are a few exciting things on the horizon:
-
-* [ ] **CI/CD Pipelines:** Implement Continuous Integration and Continuous Deployment pipelines to automate testing and deployment.
-* [ ] **Kubernetes (K8s):** Add Kubernetes manifests for container orchestration to deploy the app on cloud platforms like AWS, GCP, or Azure.
-* [ ] **Feature Expansion:** Add more features like group chats, media sharing, and user status updates.
-* **Stay tuned for updates as we continue to improve and expand this project!**
+- **Infrastructure Provisioning:** Terraform
+- **Kubernetes Platform:** Amazon EKS
+- **CI/CD Pipeline:** GitLab CI/CD (Self-hosted Runner on EC2)
+- **Container Registry:** AWS ECR
+- **Monitoring (Planned):** Prometheus & Grafana
+- **App Stack:**
+  - Frontend: React
+  - Backend: Node.js + Express
+  - Database: MongoDB
 
 ---
 
-## 📚 Project Snapshots:
+## 📦 Project Structure
 
-![Settings](frontend/public/settings.png)
+```
+.
+├── infra/
+│   ├── backend/          # Terraform remote state using S3 + DynamoDB
+│   └── eks/              # VPC, EKS Cluster, Node Groups, ECR
+├── k8s/                  # Kubernetes manifests (deployments, services, ingress)
+├── frontend/             # Frontend source code + Dockerfile
+├── backend/              # Backend source code + Dockerfile
+├── .gitlab-ci.yml        # Main GitLab CI pipeline
+├── .gitlab-ci.infra.yml  # Infra-specific pipeline logic
+├── .gitlab-ci.deploy.yml # Deployment-specific pipeline logic
+└── README.md             # You are here
+```
 
-![chat](frontend/public/chat.png)
+---
 
-![logout](/frontend/public/logout.png)
+## 🚀 What We Did
 
-![Login](/frontend/public/login.png)
+### 1. Remote State Management
+- Created a secure and centralized **Terraform backend** using:
+  - **S3 bucket** for state storage
+  - **DynamoDB table** for state locking
 
+### 2. Infrastructure as Code (Terraform)
+- Provisioned:
+  - **VPC**
+  - **EKS Cluster** with managed node groups
+  - **ECR repositories** for storing Docker images
 
+### 3. CI/CD Automation (GitLab)
+- Used a **self-hosted GitLab Runner** on EC2 for CI/CD.
+- CI Pipeline performs:
+  1. Infrastructure provisioning using Terraform
+  2. Docker image build for frontend and backend
+  3. Push images to **ECR**
+  4. Replace placeholders in Kubernetes manifests
+  5. Deploy updated workloads to EKS via `kubectl apply`
 
-## 📜 License
+### 4. Kubernetes Workloads
+- **Namespaces, ConfigMaps, Secrets** used to organize and secure configs
+- MongoDB with **persistent volume** and **PVC**
+- Frontend and backend deployed with updated images from ECR
 
+### 5. Ingress with ALB
+- Used **AWS Load Balancer Controller**
+- Created an **Internet-facing ALB** with ingress rules to route traffic to the frontend service
 
-This project is licensed under the MIT License. See the LICENSE file for more details.
+---
 
+## ✅ Outcome
 
+- Full-stack chat app is **deployed, containerized, and accessible** via a public **ALB endpoint**
+- Entire process from infra setup to app deployment is **automated via CI/CD**
+- Secrets and image references are dynamically injected and managed securely
 
+---
 
+## 🔭 Future Scope
 
+- Set up **Prometheus + Grafana** stack for:
+  - Metrics collection
+  - Dashboards for monitoring
+  - Alerting rules for proactive ops
+- Add **domain name** with **Route 53**
+- Add **HTTPS support** with **ACM + cert-manager**
+- Setup **Horizontal Pod Autoscalers** for frontend/backend
+- Add **log forwarding** with **FluentBit** or **CloudWatch Logs**
 
+---
 
+## 🧠 Author & Maintainer
 
+- Name: HARSH Sehrawat
 
+---
 
+## 🛠️ Requirements
 
-
-
-
+- AWS CLI, kubectl, Terraform
+- AWS credentials via GitLab CI/CD variables
+- GitLab Runner (Docker-based) with AWS IAM role access
