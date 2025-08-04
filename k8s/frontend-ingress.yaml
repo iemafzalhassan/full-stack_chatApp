@@ -4,12 +4,12 @@ metadata:
   name: frontend-ingress
   namespace: chatapp
   annotations:
-    spec.ingressClassName: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     alb.ingress.kubernetes.io/backend-protocol: HTTP
 spec:
+  ingressClassName: alb
   rules:
     - http:
         paths:
