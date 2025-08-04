@@ -10,3 +10,6 @@ spec:
   hostPath:
     path: "/mnt/data/mongo"
   persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    name: mongo-pvc
+    namespace: chatapp
