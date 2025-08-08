@@ -1,32 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb
+  name: mongodb-deployment
   namespace: chat-app
+  labels:
+    app: mongodb
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: mongodb
   template:
     metadata:
+      name: mongodb-pod
+      namespace: chat-app
       labels:
         app: mongodb
     spec:
       containers:
-      - name: mongodb
-        image: iemafzal/mongodb:v1
+      - name: mongodb-app
+        image: mongo:latest
         ports:
         - containerPort: 27017
         env:
         - name: MONGO_INITDB_ROOT_USERNAME
-          value: root
+          value: mongoadmin
         - name: MONGO_INITDB_ROOT_PASSWORD
-          value: admin
+          value: root
         volumeMounts:
-        - name: mongo-data
-          mountPath: /data/db
+        - mountPath: /data
+          name: mongodb-storage
       volumes:
-      - name: mongo-data
-        persistentVolumeClaim:
-          claimName: mongo-pvc
+        - name: mongodb-storage
+          persistentVolumeClaim:
+            claimName: mongodb-pvc 
+
