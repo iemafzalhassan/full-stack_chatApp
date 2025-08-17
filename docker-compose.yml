@@ -3,56 +3,70 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    container_name: frontend
     ports:
-      - "8080:80"
-    depends_on:
-      - backend
+      - "80:80"
     networks:
-      - chat-network
-    environment:
-      - BACKEND_URL=http://backend:5001
+      - public_subnet
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 8s
+      retries: 3
+      start_period: 20s
+    depends_on:
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
   backend:
+    container_name: backend
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "5001:5001"
-    depends_on:
-      - mongo
+    expose:
+      - "5001"
+    networks:
+      - public_subnet
+      - private_subnet
     env_file:
       - .env
-    networks:
-      - chat-network
+    healthcheck:
+      test: ["CMD", "/nodejs/bin/node", "/app/src/routes/health.route.js"]
+      interval: 30s
+      timeout: 8s
+      retries: 3
+      start_period: 20s
+    depends_on:
+      mongo:
+        condition: service_healthy
     restart: unless-stopped
 
   mongo:
+    container_name: mongodb
     image: mongo:latest
-    ports:
-      - "27017:27017"
+    expose:
+      - "27017"
+    networks:
+      - private_subnet
+    volumes:
+      - fullstack_data:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=admin
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - chat-network
-    restart: unless-stopped
-
-networks:
-  chat-network:
-    driver: bridge
+      - MONGODB_URI=${MONGODB_URI}
+    healthcheck:
+      test: ["CMD-SHELL", 'mongosh "${MONGODB_URI}" --quiet --eval "db.adminCommand({ ping: 1 }).ok" | grep -q 1']
+      interval: 30s
+      timeout: 8s
+      retries: 3
+      start_period: 20s
 
 volumes:
-  mongodb_data:
+  fullstack_data:
 
-
-
-
-
-
-
-
-
-
+networks:
+  private_subnet:
+    driver: bridge
+  public_subnet:
+    driver: bridge
