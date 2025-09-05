@@ -1,58 +1,65 @@
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: dattarahegaonkar09/chatapp-frontend:latest
+    container_name: frontend
     ports:
-      - "8080:80"
+      - "8081:80"
     depends_on:
       - backend
     networks:
-      - chat-network
+      - chatapp-network
     environment:
       - BACKEND_URL=http://backend:5001
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: dattarahegaonkar09/chatapp-backend:latest
+    container_name: backend
     ports:
       - "5001:5001"
     depends_on:
-      - mongo
+      - mongodb
     env_file:
-      - .env
+      - ./backend/.env
     networks:
-      - chat-network
+      - chatapp-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
-  mongo:
+  mongodb:
+    container_name: mongodb
     image: mongo:latest
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=admin
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: admin
     volumes:
-      - mongodb_data:/data/db
+      - mongo-data:/data/db
     networks:
-      - chat-network
+      - chatapp-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
 networks:
-  chat-network:
+  chatapp-network:
     driver: bridge
 
 volumes:
-  mongodb_data:
-
-
-
-
-
-
-
-
-
-
+  mongo-data:

@@ -13,13 +13,16 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "brace-expansion": "^4.0.1",
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "cross-spawn": "^7.0.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.8.1",
+    "mongoose": "^8.9.5",
+    "path-to-regexp": "^0.1.12",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
