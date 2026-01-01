@@ -1,0 +1,48 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: backend
+  namespace: chat-app
+spec:
+  selector:
+    app: chat-app
+  ports:
+  - protocol: TCP
+    port: 5001
+    targetPort: 5001
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: chat-backend
+  namespace: chat-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-app
+  template:
+    metadata:
+      name: chat-app
+      labels:
+        app: chat-app
+    spec:
+      containers:
+      - name: chat-app
+        image: aniket1112000/chat-backend:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MONGODB_URI
+          value: "mongodb://mongoadmin:mongo123@mongodb:27017/dbname?authSource=admin"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: chat-app-secret
+              key: JWT_SECRET
+        - name: PORT
+          value: "5001"

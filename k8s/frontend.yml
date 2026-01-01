@@ -1,0 +1,41 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: frontend
+  namespace: chat-app
+spec:
+  selector:
+    app: chat-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: chat-frontend
+  namespace: chat-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-app
+  template:
+    metadata:
+      name: chat-app
+      labels:
+        app: chat-app
+    spec:
+      containers:
+      - name: chat-app
+        image: aniket1112000/chat-frontend:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: BACKEND_URL
+          value: "http://backend:5001"

@@ -1,0 +1,51 @@
+name: Build & Push Image
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  docker-build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASS }}" | docker login -u "${{ vars.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ${{ vars.DOCKER_USERNAME }}/chat-frontend:latest \
+            -f frontend/Dockerfile \
+            .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ vars.DOCKER_USERNAME }}/chat-frontend:latest
+
+  docker-build-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASS }}" | docker login -u "${{ vars.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ${{ vars.DOCKER_USERNAME }}/chat-backend:latest \
+            -f backend/Dockerfile \
+            .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ vars.DOCKER_USERNAME }}/chat-backend:latest

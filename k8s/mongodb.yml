@@ -1,0 +1,53 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mongodb
+  namespace: chat-app
+spec:
+  selector:
+    app: chat-app
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: mongodb
+  namespace: chat-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-app
+  template:
+    metadata:
+      name: chat-app
+      labels:
+        app: chat-app
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:latest
+        ports:
+        - containerPort: 27017
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: mongoadmin
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: chat-app-secret
+              key: MONGO_INITDB_ROOT_PASSWORD
+        volumeMounts:
+        - name: mongo
+          mountPath: /data/db
+      volumes:
+      - name: mongo
+        persistentVolumeClaim:
+          claimName: mongo-pvc
