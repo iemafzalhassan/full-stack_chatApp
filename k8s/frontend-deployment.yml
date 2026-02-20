@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: chatapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      name: frontend-pod
+      namespace: chatapp
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: chatapp-backend
+        image: srijaydev/frontend-chatapp:latest
+        ports:
+        - containerPort: 80

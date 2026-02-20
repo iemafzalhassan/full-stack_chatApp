@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongodb
-  namespace: chat-app
+  namespace: chatapp
 spec:
   replicas: 1
   selector:
@@ -14,8 +14,8 @@ spec:
         app: mongodb
     spec:
       containers:
-      - name: mongodb
-        image: iemafzal/mongodb:v1
+      - name: chatapp-mongodb
+        image: mongo:latest
         ports:
         - containerPort: 27017
         env:
@@ -23,10 +23,7 @@ spec:
           value: root
         - name: MONGO_INITDB_ROOT_PASSWORD
           value: admin
-        volumeMounts:
-        - name: mongo-data
-          mountPath: /data/db
       volumes:
       - name: mongo-data
         persistentVolumeClaim:
-          claimName: mongo-pvc
+          claimName: mongodb-pvc

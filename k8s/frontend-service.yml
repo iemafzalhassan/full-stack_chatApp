@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: chatapp
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 81
+    targetPort: 80

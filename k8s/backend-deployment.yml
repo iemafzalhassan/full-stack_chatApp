@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
-  namespace: chat-app
+  namespace: chatapp
 spec:
   replicas: 1
   selector:
@@ -15,8 +15,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: iemafzal/backend:v1
-        imagePullPolicy: Always
+        image: srijaydev/backend-chatapp:latest
         ports:
         - containerPort: 5001
         env:
@@ -31,10 +30,3 @@ spec:
             secretKeyRef:
               name: backend-secrets
               key: jwt-secret
-        resources:
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
