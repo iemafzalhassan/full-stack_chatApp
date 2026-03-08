@@ -7,8 +7,5 @@ spec:
   selector:
     app: backend
   ports:
-    - protocol: TCP
-      port: 5001
-      targetPort: 5001
-      nodePort: 30501
-  type: NodePort
+  - port: 5001
+    targetPort: 5001
