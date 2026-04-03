@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chat-app-configmap
+  namespace: chat-app
+data:
+  mongo-uri: mongodb://root:admin@mongo:27017/chatApp?authSource=admin&retryWrites=true&w=majority
+  port: "5001"
+  node-env: "production"
+  mongo-username: "root"
+  backend-uri: "http://backend:5001"

@@ -1,0 +1,48 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: backend-deployment
+  namespace: chat-app
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      apps: backend
+  template:
+    metadata:
+      labels:
+        apps: backend
+    spec:
+      containers:
+        - name: backend
+          image: arpanel/chat-app-backend:v11
+          ports: 
+            - containerPort: 5001
+          env:
+            - name: MONGODB_URI
+              valueFrom:
+                configMapKeyRef:  
+                  name: chat-app-configmap
+                  key: mongo-uri
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: chat-app-configmap
+                  key: port
+            - name: NODE_ENV
+              valueFrom: 
+                configMapKeyRef:
+                  name: chat-app-configmap
+                  key: node-env
+            - name: JWT_SECRET
+              valueFrom:  
+                secretKeyRef:
+                  name: chat-app-secret
+                  key: jwt
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

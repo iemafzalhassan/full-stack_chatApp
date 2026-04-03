@@ -1,0 +1,39 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata: 
+  name: mongodb-statefulset
+  namespace: chat-app
+spec:
+  replicas: 1
+  serviceName: mongo
+  selector:
+    matchLabels:
+      apps: mongo
+  template:
+    metadata: 
+      labels:
+        apps: mongo
+    spec:
+      containers: 
+        - name: mongo
+          image: mongo:7.0
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom: 
+                configMapKeyRef:
+                  name: chat-app-configmap
+                  key: mongo-username
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: chat-app-secret
+                  key: mongo-password
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongodb-volume
+      volumes:
+        - name: mongodb-volume
+          persistentVolumeClaim: 
+            claimName: mongo-pvc

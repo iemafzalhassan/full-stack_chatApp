@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-cron-job
+  namespace: chat-app
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup-container
+            image: mongo:6.0
+            env:
+            - name: MONGO_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: chat-app-configmap
+                  key: mongo-username
+            - name: MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: chat-app-secret
+                  key: mongo-password
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Starting backup..."
+              mongodump --host mongo --username $MONGO_USER --password $MONGO_PASS --authenticationDatabase admin --out /backups/$(date +%Y-%m-%d)
+              echo "Backup completed successfully"
+            volumeMounts:
+              - name: backup-storage
+                mountPath: /backups
+          restartPolicy: OnFailure
+          volumes: 
+            - name: backup-storage
+              hostPath:
+                path: /home/ubuntu/k8s-backups 
+                type: DirectoryOrCreate

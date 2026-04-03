@@ -1,0 +1,52 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: frontend-deployment
+  namespace: chat-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:  
+      apps: frontend
+  template:
+    metadata:
+      labels:
+        apps: frontend
+    spec: 
+      containers:
+        - name: frontend
+          image: arpanel/chat-app-frontend:v2
+          ports:
+            - containerPort: 80
+          env:
+            - name: BACKEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: chat-app-configmap
+                  key: backend-uri
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: chat-app-configmap
+                  key: node-env
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 15
+

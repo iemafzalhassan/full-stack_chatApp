@@ -1,0 +1,12 @@
+kind: VerticalPodAutoscaler
+apiVersion: autoscaling.k8s.io/v1
+metadata:
+  name: mongodb-vpa
+  namespace: chat-app
+spec:
+  targetRef:
+    name: mongodb-statefulset
+    apiVersion: apps/v1
+    kind: StatefulSet
+  updatePolicy:
+    updateMode: "Auto"

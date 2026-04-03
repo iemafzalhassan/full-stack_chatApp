@@ -1,0 +1,23 @@
+kind: AppProject
+apiVersion: argoproj.io/v1alpha1
+metadata:
+  name: chat-app
+  namespace: argocd
+spec:
+   description: this project is for the full stack chat AppProject
+   sourceRepos:
+    - https://github.com/arpanelfranklin/full-stack_chatApp.git
+   destinations: 
+    - namespace: chat-app
+      server: https://kubernetes.default.svc
+   clusterResourceWhitelist:
+     - group: "*"
+       kind: "*"
+   namespaceResourceWhitelist:
+     - group: "*"
+       kind: "*"
+   roles:
+     - name: chat-app-admins
+       description: admins team for chat-app
+       policies: 
+         - p, proj:chat-app:chat-app-admins, applications, *, chat-app/*, allow
