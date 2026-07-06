@@ -95,7 +95,7 @@ cd full-stack_chatApp
 docker-compose up -d --build
 ```
 
-2. Access the application in your browser:
+2. Access the application in your browser engine:
 
 ```
 http://localhost
