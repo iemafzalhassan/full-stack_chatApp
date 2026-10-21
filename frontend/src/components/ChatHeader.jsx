@@ -3,7 +3,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelectedUser } = useChatStore();
+  const { selectedUser, setSelectedUser, isTyping } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
   return (
@@ -20,8 +20,16 @@ const ChatHeader = () => {
           {/* User info */}
           <div>
             <h3 className="font-medium">{selectedUser.fullName}</h3>
-            <p className="text-sm text-base-content/70">
-              {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
+            <p className="text-sm">
+              {isTyping ? (
+                <span className="text-primary font-medium flex items-center gap-1 animate-pulse">
+                  typing...
+                </span>
+              ) : (
+                <span className="text-base-content/70">
+                  {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
+                </span>
+              )}
             </p>
           </div>
         </div>

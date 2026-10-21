@@ -7,8 +7,22 @@ const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  const { sendMessage } = useChatStore();
+  const typingTimeoutRef = useRef(null);
+  const { sendMessage, sendTyping, sendStopTyping } = useChatStore();
 
+  const handleTextChange = (e) => {
+    const val = e.target.value;
+    setText(val);
+    if (val.trim()) {
+      sendTyping();
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => {
+        sendStopTyping();
+      }, 2000);
+    } else {
+      sendStopTyping();
+    }
+  };
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
@@ -31,6 +45,8 @@ const MessageInput = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    sendStopTyping();
 
     try {
       await sendMessage({
@@ -76,7 +92,7 @@ const MessageInput = () => {
             className="w-full input input-bordered rounded-lg input-sm sm:input-md"
             placeholder="Type a message..."
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={handleTextChange}
           />
           <input
             type="file"

@@ -20,6 +20,15 @@ export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
     const myId = req.user._id;
+    // Mark any unseen messages from this user as seen
+    await Message.updateMany(
+      { senderId: userToChatId, receiverId: myId, isSeen: false },
+      { isSeen: true }
+    );
+    const senderSocketId = getReceiverSocketId(userToChatId);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("messagesSeen", { byUserId: myId });
+    }
 
     const messages = await Message.find({
       $or: [
@@ -31,6 +40,25 @@ export const getMessages = async (req, res) => {
     res.status(200).json(messages);
   } catch (error) {
     console.log("Error in getMessages controller: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const markMessagesAsSeen = async (req, res) => {
+  try {
+    const { id: userToChatId } = req.params;
+    const myId = req.user._id;
+    await Message.updateMany(
+      { senderId: userToChatId, receiverId: myId, isSeen: false },
+      { isSeen: true }
+    );
+    const senderSocketId = getReceiverSocketId(userToChatId);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("messagesSeen", { byUserId: myId });
+    }
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error in markMessagesAsSeen: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };

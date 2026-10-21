@@ -6,6 +6,7 @@ import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
+import { Check, CheckCheck } from "lucide-react";
 
 const ChatContainer = () => {
   const {
@@ -15,6 +16,7 @@ const ChatContainer = () => {
     selectedUser,
     subscribeToMessages,
     unsubscribeFromMessages,
+    isTyping,
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
@@ -28,10 +30,10 @@ const ChatContainer = () => {
   }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
   useEffect(() => {
-    if (messageEndRef.current && messages) {
+    if (messageEndRef.current && (messages || isTyping)) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, isTyping]);
 
   if (isMessagesLoading) {
     return (
@@ -81,8 +83,43 @@ const ChatContainer = () => {
               )}
               {message.text && <p>{message.text}</p>}
             </div>
+            {message.senderId === authUser._id && (
+              <div className="chat-footer opacity-80 text-[11px] flex items-center justify-end gap-1 mt-0.5">
+                {message.isSeen ? (
+                  <span className="flex items-center gap-1 text-primary font-medium">
+                    <CheckCheck className="size-3.5" />
+                    <span>Seen</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 opacity-60">
+                    <Check className="size-3.5" />
+                    <span>Sent</span>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         ))}
+        {isTyping && (
+          <div className="chat chat-start" ref={messageEndRef}>
+            <div className="chat-image avatar">
+              <div className="size-10 rounded-full border">
+                <img
+                  src={selectedUser.profilePic || "/avatar.png"}
+                  alt="profile pic"
+                />
+              </div>
+            </div>
+            <div className="chat-bubble bg-base-200 text-base-content py-2.5 px-3.5 rounded-2xl flex items-center gap-1.5 shadow-sm">
+              <span className="text-xs text-base-content/70 italic mr-1">
+                {selectedUser.fullName.split(" ")[0]} is typing
+              </span>
+              <span className="size-1.5 rounded-full bg-primary animate-bounce"></span>
+              <span className="size-1.5 rounded-full bg-primary animate-bounce [animation-delay:0.2s]"></span>
+              <span className="size-1.5 rounded-full bg-primary animate-bounce [animation-delay:0.4s]"></span>
+            </div>
+          </div>
+        )}
       </div>
 
       <MessageInput />
