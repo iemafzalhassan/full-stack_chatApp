@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: db
+  name: mongo-ds
+  labels:
+    app: chat-db
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-db-ds
+  template:
+    metadata:
+      labels:
+        app: chat-db-ds
+    spec:
+      volumes:
+        - name: mongodb-volume
+          persistentVolumeClaim:
+            claimName: db-pvc
+      containers:
+        - image: mongo:9
+          name: db-container
+          ports: 
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongodb-volume
+              mountPath: /data/db
+          envFrom:
+            - secretRef:
+                name: mongo-secret
+              

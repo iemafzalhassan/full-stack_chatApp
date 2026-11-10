@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: backend
+  name: backend-ds
+  labels:
+    app: chat-backend
+spec: 
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-backend-ds
+  template:
+    metadata:
+      labels:
+        app: chat-backend-ds
+    spec:
+      containers:
+        - image: 181190101033/chat-backend:latest
+          name: backend-container
+          ports: 
+            - containerPort: 5001
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: MONGO_USERNAME
+
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: MONGO_PASSWORD
+            - name: MONGODB_URI
+              value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@db-svc.db.svc.cluster.local:27017/chatApp?authSource=admin"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: JWT_SECRET
+            - name: PORT
+              value: "5001"
+
+

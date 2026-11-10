@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: frontend
+  name: frontend-ds
+  labels:
+    app: chat-frontend
+spec: 
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-frontend-ds
+  template:
+    metadata:
+      labels:
+        app: chat-frontend-ds
+    spec:
+      containers:
+        - image: 181190101033/chat-frontend:latest
+          name: frontend-container
+          ports: 
+            - containerPort: 80

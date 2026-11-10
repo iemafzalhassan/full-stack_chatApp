@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-svc
+  namespace: db
+spec:
+  type: ClusterIP
+  selector:
+    app: chat-db-ds
+  ports:
+    - port: 27017
+      targetPort: 27017
+      protocol: TCP
